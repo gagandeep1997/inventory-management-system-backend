@@ -3,11 +3,10 @@ package com.gagan.inventory.service;
 import com.gagan.inventory.dto.request.ProductRequest;
 import com.gagan.inventory.dto.response.ProductResponse;
 import com.gagan.inventory.entity.Product;
-import com.gagan.inventory.exception.ProductAlreadyExistsException;
-import com.gagan.inventory.exception.ProductNotFoundException;
+import com.gagan.inventory.exception.ResourceAlreadyExistsException;
+import com.gagan.inventory.exception.ResourceNotFoundException;
 import com.gagan.inventory.mapper.ProductMapper;
 import com.gagan.inventory.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,6 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
 
-    @Autowired
     public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
@@ -25,43 +23,70 @@ public class ProductServiceImpl implements ProductService{
     @Override
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {
-        if(productRepository.existsBySku(request.getSku())) {
-            throw new ProductAlreadyExistsException(request.getSku());
-        }
+        validateSkuUniqueness(null, request.getSku());
+
         Product product = ProductMapper.toEntity(request);
+
         Product savedProduct = productRepository.save(product);
+
         return ProductMapper.toResponse(savedProduct);
     }
 
     @Override
     @Transactional(readOnly = true)
     public ProductResponse getProductById(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+        Product product = findProductById(id);
+
         return ProductMapper.toResponse(product);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {
-        return productRepository.findAll().stream().map(ProductMapper::toResponse).toList();
+        return productRepository.findAll()
+                .stream()
+                .map(ProductMapper::toResponse)
+                .toList();
     }
 
     @Override
     @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest request) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
-        product.setSku(request.getSku());
-        product.setName(request.getName());
-        product.setPrice(request.getPrice());
-        product.setDescription(request.getDescription());
-        Product updatedProduct = productRepository.save(product);
+        Product product = findProductById(id);
+
+        validateSkuUniqueness(id, request.getSku());
+
+        ProductMapper.updateEntity(request, product);
+
+        Product updatedProduct =
+                productRepository.save(product);
+
         return ProductMapper.toResponse(updatedProduct);
     }
 
     @Override
     @Transactional
     public void deleteProduct(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+        Product product = findProductById(id);
+
         productRepository.delete(product);
+    }
+
+    private Product findProductById(Long id) {
+        return productRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Product", id));
+    }
+
+    private void validateSkuUniqueness(Long productId, String sku) {
+        productRepository.findBySku(sku)
+                .filter(product ->
+                        !product.getId().equals(productId))
+                .ifPresent(product -> {
+                    throw new ResourceAlreadyExistsException(
+                            "Product",
+                            "SKU",
+                            sku
+                    );
+                });
     }
 }

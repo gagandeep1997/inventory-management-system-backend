@@ -4,7 +4,6 @@ import com.gagan.inventory.dto.request.ProductRequest;
 import com.gagan.inventory.dto.response.ProductResponse;
 import com.gagan.inventory.service.ProductService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,15 +14,14 @@ import java.util.List;
 public class ProductController {
     private final ProductService productService;
 
-    @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
-    @PostMapping("/create-product")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponse createProduct(@RequestBody @Valid ProductRequest productRequest) {
-        return productService.createProduct(productRequest);
+    public ProductResponse createProduct(@RequestBody @Valid ProductRequest request) {
+        return productService.createProduct(request);
     }
 
     @GetMapping("/{id}")
@@ -31,17 +29,17 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
-    @GetMapping("/all-products")
+    @GetMapping
     public List<ProductResponse> getAllProducts() {
         return productService.getAllProducts();
     }
 
-    @PutMapping("/update/{id}")
-    public ProductResponse updateProduct(@PathVariable Long id, @RequestBody @Valid ProductRequest productRequest) {
-        return productService.updateProduct(id, productRequest);
+    @PutMapping("/{id}")
+    public ProductResponse updateProduct(@PathVariable Long id, @RequestBody @Valid ProductRequest request) {
+        return productService.updateProduct(id, request);
     }
 
-    @DeleteMapping("/delete-product/{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);

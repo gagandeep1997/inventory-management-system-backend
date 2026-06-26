@@ -35,4 +35,11 @@ public final class ProductMapper {
 
         return response;
     }
+
+    public static void updateEntity(ProductRequest request, Product product) {
+        product.setSku(request.getSku());
+        product.setName(request.getName());
+        product.setPrice(request.getPrice());
+        product.setDescription(request.getDescription());
+    }
 }
