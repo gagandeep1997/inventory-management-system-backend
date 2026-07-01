@@ -13,8 +13,7 @@ public final class WarehouseMapper {
 
         Warehouse warehouse = new Warehouse();
 
-        warehouse.setName(request.getName());
-        warehouse.setLocation(request.getLocation());
+        WarehouseSetter(warehouse, request);
 
         return warehouse;
     }
@@ -22,14 +21,36 @@ public final class WarehouseMapper {
     public static WarehouseResponse toResponse(
             Warehouse warehouse
     ) {
-
-        WarehouseResponse response =
-                new WarehouseResponse();
-
-        response.setId(warehouse.getId());
-        response.setName(warehouse.getName());
-        response.setLocation(warehouse.getLocation());
-
-        return response;
+        return WarehouseResponse.builder()
+                .id(warehouse.getId())
+                .name(warehouse.getName())
+                .code(warehouse.getCode())
+                .address(warehouse.getAddress())
+                .city(warehouse.getCity())
+                .state(warehouse.getState())
+                .country(warehouse.getCountry())
+                .postalCode(warehouse.getPostalCode())
+                .active(warehouse.getActive())
+                .createdAt(warehouse.getCreatedAt())
+                .updatedAt(warehouse.getUpdatedAt())
+                .build();
     }
+
+    public static void updateEntity(
+            Warehouse warehouse,
+            WarehouseRequest request
+    ) {
+        WarehouseSetter(warehouse, request);
+    }
+
+    private static void WarehouseSetter(Warehouse warehouse, WarehouseRequest request) {
+        warehouse.setName(request.getName());
+        warehouse.setCode(request.getCode());
+        warehouse.setAddress(request.getAddress());
+        warehouse.setCity(request.getCity());
+        warehouse.setState(request.getState());
+        warehouse.setCountry(request.getCountry());
+        warehouse.setPostalCode(request.getPostalCode());
+    }
+
 }

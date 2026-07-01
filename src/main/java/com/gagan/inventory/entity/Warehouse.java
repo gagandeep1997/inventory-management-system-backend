@@ -20,9 +20,27 @@ public class Warehouse extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", length = 50, nullable = false)
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "location", nullable = false)
-    private String location;
+    @Column(nullable = false, unique = true, length = 20)
+    private String code;
+
+    @Column(nullable = false)
+    private String address;
+
+    @Column(nullable = false, length = 50)
+    private String city;
+
+    @Column(nullable = false, length = 50)
+    private String state;
+
+    @Column(nullable = false, length = 50)
+    private String country;
+
+    @Column(nullable = false, length = 10)
+    private String postalCode;
+
+    @Column(nullable = false)
+    private Boolean active = true;
 }
