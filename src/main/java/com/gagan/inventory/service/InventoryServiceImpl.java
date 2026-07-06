@@ -16,6 +16,7 @@ import com.gagan.inventory.repository.WarehouseRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -67,8 +68,8 @@ public class InventoryServiceImpl implements InventoryService {
             throw new InsufficientStockException(inventory.getQuantity(), request.getQuantity());
         }
 
-        inventory.setQuantity(inventory.getQuantity() - request.getQuantity());
-
+        Integer updatedQuantity = inventory.getQuantity() - request.getQuantity();
+        inventory.setQuantity(updatedQuantity);
         Inventory savedInventory = inventoryRepository.save(inventory);
         return InventoryMapper.toResponse(savedInventory);
     }
@@ -82,6 +83,45 @@ public class InventoryServiceImpl implements InventoryService {
         inventory.setQuantity(request.getQuantity());
         Inventory savedInventory = inventoryRepository.save(inventory);
         return InventoryMapper.toResponse(savedInventory);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public InventoryResponse getInventoryById(Long id) {
+        return InventoryMapper.toResponse(findInventoryById(id));
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<InventoryResponse> getInventoryByProduct(Long productId) {
+        Product product = findProductById(productId);
+
+        return inventoryRepository
+                .findByProduct(product)
+                .stream()
+                .map(InventoryMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<InventoryResponse> getInventoryByWarehouse(Long warehouseId) {
+        Warehouse warehouse = findWarehouseById(warehouseId);
+
+        return inventoryRepository
+                .findByWarehouse(warehouse)
+                .stream()
+                .map(InventoryMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<InventoryResponse> getAllInventory() {
+        return inventoryRepository.findAll()
+                .stream()
+                .map(InventoryMapper::toResponse)
+                .toList();
     }
 
     private Warehouse findWarehouseById(Long id) {
@@ -100,7 +140,9 @@ public class InventoryServiceImpl implements InventoryService {
                                 id));
     }
 
-    private Inventory findInventoryByProductAndWarehouse(Product product, Warehouse warehouse) {
+    private Inventory findInventoryByProductAndWarehouse(
+            Product product,
+            Warehouse warehouse) {
         return inventoryRepository.findByProductAndWarehouse(product, warehouse)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -108,5 +150,10 @@ public class InventoryServiceImpl implements InventoryService {
                                 "product and warehouse",
                                 product.getId() + "-" + warehouse.getId()
                         ));
+    }
+
+    private Inventory findInventoryById(Long id) {
+        return inventoryRepository.findById(id).orElseThrow(() ->
+                        new ResourceNotFoundException("Inventory", id));
     }
 }

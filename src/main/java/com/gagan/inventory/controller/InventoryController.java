@@ -6,10 +6,9 @@ import com.gagan.inventory.dto.request.RemoveStockRequest;
 import com.gagan.inventory.dto.response.InventoryResponse;
 import com.gagan.inventory.service.InventoryService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/inventory")
@@ -33,5 +32,25 @@ public class InventoryController {
     @PostMapping("/adjust-stock")
     public InventoryResponse adjustStock(@Valid @RequestBody AdjustStockRequest request) {
         return inventoryService.adjustStock(request);
+    }
+
+    @GetMapping("/{id}")
+    public InventoryResponse getInventoryById(@PathVariable Long id) {
+        return inventoryService.getInventoryById(id);
+    }
+
+    @GetMapping("/products/{productId}")
+    public List<InventoryResponse> getInventoryByProduct(@PathVariable Long productId) {
+        return inventoryService.getInventoryByProduct(productId);
+    }
+
+    @GetMapping("/warehouses/{warehouseId}")
+    public List<InventoryResponse> getInventoryByWarehouse(@PathVariable Long warehouseId) {
+        return inventoryService.getInventoryByWarehouse(warehouseId);
+    }
+
+    @GetMapping
+    public List<InventoryResponse> getAllInventory() {
+        return inventoryService.getAllInventory();
     }
 }
