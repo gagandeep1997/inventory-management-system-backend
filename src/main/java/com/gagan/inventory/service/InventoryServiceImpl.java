@@ -3,11 +3,13 @@ package com.gagan.inventory.service;
 import com.gagan.inventory.dto.request.AddStockRequest;
 import com.gagan.inventory.dto.request.AdjustStockRequest;
 import com.gagan.inventory.dto.request.RemoveStockRequest;
+import com.gagan.inventory.dto.request.TransferStockRequest;
 import com.gagan.inventory.dto.response.InventoryResponse;
 import com.gagan.inventory.entity.Inventory;
 import com.gagan.inventory.entity.Product;
 import com.gagan.inventory.entity.Warehouse;
 import com.gagan.inventory.exception.InsufficientStockException;
+import com.gagan.inventory.exception.InvalidStockTransferException;
 import com.gagan.inventory.exception.ResourceNotFoundException;
 import com.gagan.inventory.mapper.InventoryMapper;
 import com.gagan.inventory.repository.InventoryRepository;
@@ -122,6 +124,44 @@ public class InventoryServiceImpl implements InventoryService {
                 .stream()
                 .map(InventoryMapper::toResponse)
                 .toList();
+    }
+
+    @Override
+    public InventoryResponse transferStock(TransferStockRequest request) {
+        if(request.getSourceWarehouseId().equals(request.getDestinationWarehouseId())) {
+            throw new InvalidStockTransferException(
+                    "Source and destination warehouse cannot be same"
+            );
+        }
+
+        Product product = findProductById(request.getProductId());
+        Warehouse sourceWarehouse = findWarehouseById(request.getSourceWarehouseId());
+        Warehouse destinationWarehouse = findWarehouseById(request.getDestinationWarehouseId());
+
+        Inventory sourceInventory = findInventoryByProductAndWarehouse(product, sourceWarehouse);
+
+        if(sourceInventory.getQuantity() < request.getQuantity()) {
+            throw new InsufficientStockException(sourceInventory.getQuantity(), request.getQuantity());
+        }
+
+        sourceInventory.setQuantity(sourceInventory.getQuantity() - request.getQuantity());
+
+        Inventory destinationInventory = inventoryRepository.findByProductAndWarehouse(product, destinationWarehouse)
+                .orElseGet(() -> {
+                    Inventory inventory = new Inventory();
+                    inventory.setProduct(product);
+                    inventory.setWarehouse(destinationWarehouse);
+                    inventory.setQuantity(0);
+
+                    return inventory;
+                });
+
+        destinationInventory.setQuantity(destinationInventory.getQuantity() + request.getQuantity());
+
+        inventoryRepository.save(sourceInventory);
+        Inventory savedDestination = inventoryRepository.save(destinationInventory);
+
+        return InventoryMapper.toResponse(savedDestination);
     }
 
     private Warehouse findWarehouseById(Long id) {

@@ -3,6 +3,7 @@ package com.gagan.inventory.controller;
 import com.gagan.inventory.dto.request.AddStockRequest;
 import com.gagan.inventory.dto.request.AdjustStockRequest;
 import com.gagan.inventory.dto.request.RemoveStockRequest;
+import com.gagan.inventory.dto.request.TransferStockRequest;
 import com.gagan.inventory.dto.response.InventoryResponse;
 import com.gagan.inventory.service.InventoryService;
 import jakarta.validation.Valid;
@@ -52,5 +53,10 @@ public class InventoryController {
     @GetMapping
     public List<InventoryResponse> getAllInventory() {
         return inventoryService.getAllInventory();
+    }
+
+    @PostMapping("/transfer-stock")
+    public InventoryResponse transferStock(@Valid @RequestBody TransferStockRequest request) {
+        return inventoryService.transferStock(request);
     }
 }

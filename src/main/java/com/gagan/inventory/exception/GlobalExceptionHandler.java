@@ -85,6 +85,21 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(InvalidStockTransferException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientStockException(InvalidStockTransferException ex,  HttpServletRequest request) {
+        ErrorResponse errorResponse =
+                buildErrorResponse(
+                        HttpStatus.BAD_REQUEST,
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        null
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
         ErrorResponse errorResponse =
