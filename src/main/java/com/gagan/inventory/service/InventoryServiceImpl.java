@@ -7,6 +7,7 @@ import com.gagan.inventory.dto.request.TransferStockRequest;
 import com.gagan.inventory.dto.response.InventoryResponse;
 import com.gagan.inventory.entity.Inventory;
 import com.gagan.inventory.entity.Product;
+import com.gagan.inventory.entity.StockMovementType;
 import com.gagan.inventory.entity.Warehouse;
 import com.gagan.inventory.exception.InsufficientStockException;
 import com.gagan.inventory.exception.InvalidStockTransferException;
@@ -27,13 +28,16 @@ public class InventoryServiceImpl implements InventoryService {
     private final ProductRepository productRepository;
     private final WarehouseRepository warehouseRepository;
     private final InventoryRepository inventoryRepository;
+    private final StockMovementService stockMovementService;
 
     public InventoryServiceImpl(ProductRepository productRepository,
                                 WarehouseRepository warehouseRepository,
-                                InventoryRepository inventoryRepository) {
+                                InventoryRepository inventoryRepository,
+                                StockMovementService stockMovementService) {
         this.productRepository = productRepository;
         this.warehouseRepository = warehouseRepository;
         this.inventoryRepository = inventoryRepository;
+        this.stockMovementService = stockMovementService;
     }
 
     @Override
@@ -57,6 +61,13 @@ public class InventoryServiceImpl implements InventoryService {
         }
 
         Inventory savedInventory = inventoryRepository.save(inventory);
+        stockMovementService.recordMovement(
+                product,
+                warehouse,
+                StockMovementType.ADD,
+                request.getQuantity()
+        );
+
         return InventoryMapper.toResponse(savedInventory);
     }
 
@@ -73,6 +84,12 @@ public class InventoryServiceImpl implements InventoryService {
         Integer updatedQuantity = inventory.getQuantity() - request.getQuantity();
         inventory.setQuantity(updatedQuantity);
         Inventory savedInventory = inventoryRepository.save(inventory);
+        stockMovementService.recordMovement(
+                product,
+                warehouse,
+                StockMovementType.REMOVE,
+                request.getQuantity()
+        );
         return InventoryMapper.toResponse(savedInventory);
     }
 
@@ -84,6 +101,12 @@ public class InventoryServiceImpl implements InventoryService {
 
         inventory.setQuantity(request.getQuantity());
         Inventory savedInventory = inventoryRepository.save(inventory);
+        stockMovementService.recordMovement(
+                product,
+                warehouse,
+                StockMovementType.ADJUST,
+                request.getQuantity()
+        );
         return InventoryMapper.toResponse(savedInventory);
     }
 
@@ -160,6 +183,21 @@ public class InventoryServiceImpl implements InventoryService {
 
         inventoryRepository.save(sourceInventory);
         Inventory savedDestination = inventoryRepository.save(destinationInventory);
+
+        stockMovementService.recordMovement(
+                product,
+                sourceWarehouse,
+                StockMovementType.TRANSFER_OUT,
+                request.getQuantity()
+        );
+
+
+        stockMovementService.recordMovement(
+                product,
+                destinationWarehouse,
+                StockMovementType.TRANSFER_IN,
+                request.getQuantity()
+        );
 
         return InventoryMapper.toResponse(savedDestination);
     }
