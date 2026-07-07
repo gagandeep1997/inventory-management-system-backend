@@ -1,13 +1,12 @@
 package com.gagan.inventory.controller;
 
 import com.gagan.inventory.dto.request.WarehouseRequest;
+import com.gagan.inventory.dto.response.PageResponse;
 import com.gagan.inventory.dto.response.WarehouseResponse;
 import com.gagan.inventory.service.WarehouseService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/warehouses")
@@ -25,8 +24,11 @@ public class WarehouseController {
     }
 
     @GetMapping
-    public List<WarehouseResponse> getAllWarehouses() {
-        return warehouseService.getAllWarehouses();
+    public PageResponse<WarehouseResponse> getAllWarehouses(@RequestParam(defaultValue = "0") int page,
+                                                            @RequestParam(defaultValue = "10") int size,
+                                                            @RequestParam(defaultValue = "name") String sortBy,
+                                                            @RequestParam(defaultValue = "asc") String direction) {
+        return warehouseService.getAllWarehouses(page, size, sortBy, direction);
     }
 
     @GetMapping("/{id}")

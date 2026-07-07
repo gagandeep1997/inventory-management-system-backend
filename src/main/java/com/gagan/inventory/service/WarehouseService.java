@@ -1,17 +1,18 @@
 package com.gagan.inventory.service;
 
 import com.gagan.inventory.dto.request.WarehouseRequest;
+import com.gagan.inventory.dto.response.PageResponse;
 import com.gagan.inventory.dto.response.WarehouseResponse;
-import com.gagan.inventory.entity.Warehouse;
-
-import java.util.List;
 
 public interface WarehouseService {
     WarehouseResponse createWarehouse(WarehouseRequest request);
 
     WarehouseResponse getWarehouseById(Long id);
 
-    List<WarehouseResponse> getAllWarehouses();
+    PageResponse<WarehouseResponse> getAllWarehouses(int page,
+                                                     int size,
+                                                     String sortBy,
+                                                     String direction);
 
     WarehouseResponse updateWarehouse(Long id, WarehouseRequest request);
 

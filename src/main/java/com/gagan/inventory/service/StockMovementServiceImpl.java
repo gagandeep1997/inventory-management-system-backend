@@ -1,15 +1,20 @@
 package com.gagan.inventory.service;
 
+import com.gagan.inventory.dto.response.PageResponse;
 import com.gagan.inventory.dto.response.StockMovementResponse;
 import com.gagan.inventory.entity.Product;
 import com.gagan.inventory.entity.StockMovement;
 import com.gagan.inventory.entity.StockMovementType;
 import com.gagan.inventory.entity.Warehouse;
 import com.gagan.inventory.exception.ResourceNotFoundException;
+import com.gagan.inventory.mapper.PageMapper;
 import com.gagan.inventory.mapper.StockMovementMapper;
 import com.gagan.inventory.repository.ProductRepository;
 import com.gagan.inventory.repository.StockMovementRepository;
 import com.gagan.inventory.repository.WarehouseRepository;
+import com.gagan.inventory.util.PaginationUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,12 +51,21 @@ public class StockMovementServiceImpl implements StockMovementService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<StockMovementResponse> getAllStockMovements() {
-        return stockMovementRepository
-                .findAll()
+    public PageResponse<StockMovementResponse> getAllStockMovements(int page,
+                                                                    int size,
+                                                                    String sortBy,
+                                                                    String direction ) {
+
+        Pageable pageable = PaginationUtil.createPageable(page, size, sortBy, direction);
+
+        Page<StockMovement> stockMovementPage = stockMovementRepository.findAll(pageable);
+
+        List<StockMovementResponse> content = stockMovementPage.getContent()
                 .stream()
                 .map(StockMovementMapper::toResponse)
                 .toList();
+
+        return PageMapper.toPageResponse(stockMovementPage, content);
     }
 
     @Transactional(readOnly = true)

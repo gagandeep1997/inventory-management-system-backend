@@ -1,12 +1,17 @@
 package com.gagan.inventory.service;
 
 import com.gagan.inventory.dto.request.WarehouseRequest;
+import com.gagan.inventory.dto.response.PageResponse;
 import com.gagan.inventory.dto.response.WarehouseResponse;
 import com.gagan.inventory.entity.Warehouse;
 import com.gagan.inventory.exception.ResourceAlreadyExistsException;
 import com.gagan.inventory.exception.ResourceNotFoundException;
+import com.gagan.inventory.mapper.PageMapper;
 import com.gagan.inventory.mapper.WarehouseMapper;
 import com.gagan.inventory.repository.WarehouseRepository;
+import com.gagan.inventory.util.PaginationUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,11 +47,17 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<WarehouseResponse> getAllWarehouses() {
-        return warehouseRepository.findAll()
+    public PageResponse<WarehouseResponse> getAllWarehouses(int page, int size, String sortBy, String direction) {
+        Pageable pageable = PaginationUtil.createPageable(page, size, sortBy, direction);
+
+        Page<Warehouse> warehousePage = warehouseRepository.findAll(pageable);
+
+        List<WarehouseResponse> content = warehousePage.getContent()
                 .stream()
                 .map(WarehouseMapper::toResponse)
                 .toList();
+
+        return PageMapper.toPageResponse(warehousePage, content);
     }
 
     @Override

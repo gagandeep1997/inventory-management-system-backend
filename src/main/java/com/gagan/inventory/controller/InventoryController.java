@@ -5,6 +5,7 @@ import com.gagan.inventory.dto.request.AdjustStockRequest;
 import com.gagan.inventory.dto.request.RemoveStockRequest;
 import com.gagan.inventory.dto.request.TransferStockRequest;
 import com.gagan.inventory.dto.response.InventoryResponse;
+import com.gagan.inventory.dto.response.PageResponse;
 import com.gagan.inventory.service.InventoryService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -51,8 +52,11 @@ public class InventoryController {
     }
 
     @GetMapping
-    public List<InventoryResponse> getAllInventory() {
-        return inventoryService.getAllInventory();
+    public PageResponse<InventoryResponse> getAllInventory(@RequestParam(defaultValue = "0") int page,
+                                                           @RequestParam(defaultValue = "10") int size,
+                                                           @RequestParam(defaultValue = "productName") String sortBy,
+                                                           @RequestParam(defaultValue = "asc") String direction) {
+        return inventoryService.getAllInventory(page, size, sortBy, direction);
     }
 
     @PostMapping("/transfer-stock")

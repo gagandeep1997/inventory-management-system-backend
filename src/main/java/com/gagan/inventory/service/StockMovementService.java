@@ -1,5 +1,6 @@
 package com.gagan.inventory.service;
 
+import com.gagan.inventory.dto.response.PageResponse;
 import com.gagan.inventory.dto.response.StockMovementResponse;
 import com.gagan.inventory.entity.Product;
 import com.gagan.inventory.entity.StockMovementType;
@@ -14,7 +15,7 @@ public interface StockMovementService {
             StockMovementType movementType,
             Integer quantity
     );
-    List<StockMovementResponse> getAllStockMovements();
+    PageResponse<StockMovementResponse> getAllStockMovements(int page, int size, String sortBy, String direction);
     List<StockMovementResponse> getStockMovementsByProduct(Long productId);
     List<StockMovementResponse> getStockMovementsByWarehouse(Long warehouseId);
 }

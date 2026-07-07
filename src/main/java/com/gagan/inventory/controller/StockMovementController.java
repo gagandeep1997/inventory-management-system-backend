@@ -1,5 +1,6 @@
 package com.gagan.inventory.controller;
 
+import com.gagan.inventory.dto.response.PageResponse;
 import com.gagan.inventory.dto.response.StockMovementResponse;
 import com.gagan.inventory.service.StockMovementService;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +17,12 @@ public class StockMovementController {
     }
 
     @GetMapping
-    public List<StockMovementResponse> getAllStockMovements() {
+    public PageResponse<StockMovementResponse> getAllStockMovements(@RequestParam(defaultValue = "0") int page,
+                                                                    @RequestParam(defaultValue = "10") int size,
+                                                                    @RequestParam(defaultValue = "createdAt") String sortBy,
+                                                                    @RequestParam(defaultValue = "desc") String direction) {
         return stockMovementService
-                .getAllStockMovements();
+                .getAllStockMovements(page, size, sortBy, direction);
     }
 
     @GetMapping("/products/{productId}")

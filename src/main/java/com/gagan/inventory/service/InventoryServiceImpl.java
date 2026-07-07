@@ -5,6 +5,7 @@ import com.gagan.inventory.dto.request.AdjustStockRequest;
 import com.gagan.inventory.dto.request.RemoveStockRequest;
 import com.gagan.inventory.dto.request.TransferStockRequest;
 import com.gagan.inventory.dto.response.InventoryResponse;
+import com.gagan.inventory.dto.response.PageResponse;
 import com.gagan.inventory.entity.Inventory;
 import com.gagan.inventory.entity.Product;
 import com.gagan.inventory.entity.StockMovementType;
@@ -13,9 +14,13 @@ import com.gagan.inventory.exception.InsufficientStockException;
 import com.gagan.inventory.exception.InvalidStockTransferException;
 import com.gagan.inventory.exception.ResourceNotFoundException;
 import com.gagan.inventory.mapper.InventoryMapper;
+import com.gagan.inventory.mapper.PageMapper;
 import com.gagan.inventory.repository.InventoryRepository;
 import com.gagan.inventory.repository.ProductRepository;
 import com.gagan.inventory.repository.WarehouseRepository;
+import com.gagan.inventory.util.PaginationUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -142,11 +147,20 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<InventoryResponse> getAllInventory() {
-        return inventoryRepository.findAll()
+    public PageResponse<InventoryResponse> getAllInventory(int page,
+                                                           int size,
+                                                           String sortBy,
+                                                           String direction) {
+        Pageable pageable = PaginationUtil.createPageable(page, size, sortBy, direction);
+
+        Page<Inventory> inventoryPage = inventoryRepository.findAll(pageable);
+
+        List<InventoryResponse> content = inventoryPage.getContent()
                 .stream()
                 .map(InventoryMapper::toResponse)
                 .toList();
+
+        return PageMapper.toPageResponse(inventoryPage, content);
     }
 
     @Override

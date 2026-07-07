@@ -1,12 +1,17 @@
 package com.gagan.inventory.service;
 
 import com.gagan.inventory.dto.request.ProductRequest;
+import com.gagan.inventory.dto.response.PageResponse;
 import com.gagan.inventory.dto.response.ProductResponse;
 import com.gagan.inventory.entity.Product;
 import com.gagan.inventory.exception.ResourceAlreadyExistsException;
 import com.gagan.inventory.exception.ResourceNotFoundException;
+import com.gagan.inventory.mapper.PageMapper;
 import com.gagan.inventory.mapper.ProductMapper;
 import com.gagan.inventory.repository.ProductRepository;
+import com.gagan.inventory.util.PaginationUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -42,11 +47,21 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductResponse> getAllProducts() {
-        return productRepository.findAll()
+    public PageResponse<ProductResponse> getAllProducts(int page,
+                                                        int size,
+                                                        String sortBy,
+                                                        String direction) {
+
+        Pageable pageable = PaginationUtil.createPageable(page, size, sortBy, direction);
+
+        Page<Product> pageProducts = productRepository.findAll(pageable);
+
+        List<ProductResponse> content = pageProducts.getContent()
                 .stream()
                 .map(ProductMapper::toResponse)
                 .toList();
+
+        return PageMapper.toPageResponse(pageProducts, content);
     }
 
     @Override
