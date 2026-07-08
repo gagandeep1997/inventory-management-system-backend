@@ -2,5 +2,6 @@ package com.gagan.inventory.entity;
 
 public enum Role {
     ADMIN,
-    MANAGER
+    MANAGER,
+    USER
 }

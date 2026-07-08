@@ -3,6 +3,7 @@ package com.gagan.inventory.controller;
 import com.gagan.inventory.dto.response.PageResponse;
 import com.gagan.inventory.dto.response.StockMovementResponse;
 import com.gagan.inventory.service.StockMovementService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class StockMovementController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public PageResponse<StockMovementResponse> getAllStockMovements(@RequestParam(defaultValue = "0") int page,
                                                                     @RequestParam(defaultValue = "10") int size,
                                                                     @RequestParam(defaultValue = "createdAt") String sortBy,

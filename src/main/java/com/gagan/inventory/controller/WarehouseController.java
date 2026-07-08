@@ -6,6 +6,7 @@ import com.gagan.inventory.dto.response.WarehouseResponse;
 import com.gagan.inventory.service.WarehouseService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +20,7 @@ public class WarehouseController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public WarehouseResponse createWarehouse(@Valid @RequestBody WarehouseRequest request) {
         return warehouseService.createWarehouse(request);
     }
@@ -37,6 +39,7 @@ public class WarehouseController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public WarehouseResponse updateWarehouse(
             @PathVariable Long id,
             @Valid @RequestBody WarehouseRequest request) {
@@ -44,6 +47,7 @@ public class WarehouseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteWarehouse(@PathVariable Long id) {
         warehouseService.deleteWarehouse(id);
