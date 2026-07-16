@@ -4,6 +4,7 @@ import com.gagan.inventory.dto.request.WarehouseRequest;
 import com.gagan.inventory.dto.response.PageResponse;
 import com.gagan.inventory.dto.response.WarehouseResponse;
 import com.gagan.inventory.service.WarehouseService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +19,7 @@ public class WarehouseController {
         this.warehouseService = warehouseService;
     }
 
+    @Operation(summary = "Create a Warehouse")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyRole('ADMIN')")
@@ -25,6 +27,7 @@ public class WarehouseController {
         return warehouseService.createWarehouse(request);
     }
 
+    @Operation(summary = "Get all warehouses")
     @GetMapping
     public PageResponse<WarehouseResponse> getAllWarehouses(@RequestParam(defaultValue = "0") int page,
                                                             @RequestParam(defaultValue = "10") int size,
@@ -33,11 +36,13 @@ public class WarehouseController {
         return warehouseService.getAllWarehouses(page, size, sortBy, direction);
     }
 
+    @Operation(summary = "Get Warehouse by ID")
     @GetMapping("/{id}")
     public WarehouseResponse getWarehouseById(@PathVariable Long id) {
         return warehouseService.getWarehouseById(id);
     }
 
+    @Operation(summary = "Update an warehouse")
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public WarehouseResponse updateWarehouse(
@@ -46,6 +51,7 @@ public class WarehouseController {
         return warehouseService.updateWarehouse(id, request);
     }
 
+    @Operation(summary = "Delete an warehouse")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)

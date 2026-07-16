@@ -4,6 +4,7 @@ import com.gagan.inventory.dto.request.ProductRequest;
 import com.gagan.inventory.dto.response.PageResponse;
 import com.gagan.inventory.dto.response.ProductResponse;
 import com.gagan.inventory.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +19,7 @@ public class ProductController {
         this.productService = productService;
     }
 
+    @Operation(summary = "Create a new product")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
@@ -25,11 +27,13 @@ public class ProductController {
         return productService.createProduct(request);
     }
 
+    @Operation(summary = "Get product by ID")
     @GetMapping("/{id}")
     public ProductResponse getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
     }
 
+    @Operation(summary = "Get all products")
     @GetMapping
     public PageResponse<ProductResponse> getAllProducts(@RequestParam(defaultValue = "0") int page,
                                                         @RequestParam(defaultValue = "10") int size,
@@ -38,12 +42,14 @@ public class ProductController {
         return productService.getAllProducts(page, size, sortBy, direction);
     }
 
+    @Operation(summary = "Update an product by id")
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ProductResponse updateProduct(@PathVariable Long id, @RequestBody @Valid ProductRequest request) {
         return productService.updateProduct(id, request);
     }
 
+    @Operation(summary = "Delete an product")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAnyRole('ADMIN')")

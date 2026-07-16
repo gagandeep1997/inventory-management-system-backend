@@ -5,6 +5,7 @@ import com.gagan.inventory.dto.request.RegisterRequest;
 import com.gagan.inventory.dto.response.AuthResponse;
 import com.gagan.inventory.service.AuthService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -21,12 +22,14 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @Operation(summary = "Register user")
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
     }
 
+    @Operation(summary = "Login user")
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
