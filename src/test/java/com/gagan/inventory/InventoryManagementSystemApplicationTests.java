@@ -1,4 +1,4 @@
-package com.gagan.inventory_management_system;
+package com.gagan.inventory;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
